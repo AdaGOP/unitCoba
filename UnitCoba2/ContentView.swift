@@ -120,24 +120,13 @@ struct MonsterView: View {
                             size: 20, weight: .bold))
             }
             if let currAttack = mon.signAttack {
-                Text("\(translate(currAttack))")
+                Text("\(GameService.translate(currAttack).icon)")
                     .font(
                         .system(
                             size: 44))
             }
         }.padding(.all, 8)
             .cornerRadius(10)
-    }
-    
-    func translate(_ currAttack: AttackType) -> String {
-        switch currAttack{
-        case .rock:
-            return "🪨"
-        case .paper:
-            return "📄"
-        case .scissor:
-            return "✂️"
-        }
     }
 }
 
