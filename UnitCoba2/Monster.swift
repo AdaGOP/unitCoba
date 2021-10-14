@@ -11,6 +11,19 @@ protocol BattleAble{
     func attack(mon: Monster, with type: AttackType)
 }
 
+class GameService{
+    static func translate(_ currAttack: AttackType) -> (name:String, icon:String) {
+        switch currAttack{
+        case .rock:
+            return ("rock", "🪨")
+        case .paper:
+            return ("paper", "📄")
+        case .scissor:
+            return ("scissor", "✂️")
+        }
+    }
+}
+
 class GameViewModel: ObservableObject{
     @Published var mon: Monster
     @Published var enemymon: Monster
