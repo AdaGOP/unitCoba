@@ -12,96 +12,57 @@ struct ContentView: View {
     var body: some View {
         NavigationView{
             VStack{
+                HStack{
+                    AttackButton(attackType: .rock, action: {
+                        print("attack with rock")
+                        game.enemymon.signAttack = .rock
+                        game.mon.signAttack = AttackType.allCases.randomElement()
+                        game.battle()
+                        game.enemymon.attack(mon: game.mon, with: .rock)
+                    })
+                    AttackButton(attackType: .paper, action: {
+                        print("attack with paper")
+                        game.enemymon.signAttack = .paper
+                        game.mon.signAttack = AttackType.allCases.randomElement()
+                        game.battle()
+                        game.enemymon.attack(mon: game.mon, with: .paper)
+                    })
+                    AttackButton(attackType: .scissor, action: {
+                        print("attack with scissor")
+                        game.enemymon.signAttack = .scissor
+                        game.mon.signAttack = AttackType.allCases.randomElement()
+                        game.battle()
+                        game.enemymon.attack(mon: game.mon, with: .scissor)
+                    })
+                }
+                Spacer()
                 VStack {
                     MonsterView(mon: $game.enemymon)
                     MonsterView(mon: $game.mon)
                 }.padding(.all, 8)
                 Spacer()
                 HStack {
-                    if #available(iOS 15.0, *) {
-                        Button {
+                    AttackButton(attackType: .rock, action: {
                             print("Attack with Rock")
                             game.mon.signAttack = .rock
                             game.enemymon.signAttack = AttackType.allCases.randomElement()
                             game.battle()
                             game.mon.attack(mon: game.enemymon, with: .rock)
-                        } label: {
-                            Text("🪨")
-                                .font(
-                                    .system(
-                                        size: 44))
-                        }.buttonStyle(.borderedProminent)
-                    } else {
-                        // Fallback on earlier versions
-                        Button {
-                            print("Attack with Rock")
-                            game.mon.signAttack = .rock
-                            game.enemymon.signAttack = AttackType.allCases.randomElement()
-                            game.battle()
-                            game.mon.attack(mon: game.enemymon, with: .rock)
-                        } label: {
-                            Text("🪨")
-                                .font(
-                                    .system(
-                                        size: 44))
-                        }
-                    }
-                    if #available(iOS 15.0, *) {
-                        Button {
+                    })
+                    AttackButton(attackType: .paper, action: {
                             print("Attack with Paper")
                             game.mon.signAttack = .paper
                             game.enemymon.signAttack = AttackType.allCases.randomElement()
                             game.battle()
                             game.mon.attack(mon: game.enemymon, with: .paper)
-                        } label: {
-                            Text("📄")
-                                .font(
-                                    .system(
-                                        size: 44))
-                        }.buttonStyle(.borderedProminent)
-                    } else {
-                        // Fallback on earlier versions
-                        Button {
-                            print("Attack with Paper")
-                            game.mon.signAttack = .paper
-                            game.enemymon.signAttack = AttackType.allCases.randomElement()
-                            game.battle()
-                            game.mon.attack(mon: game.enemymon, with: .paper)
-                        } label: {
-                            Text("📄")
-                                .font(
-                                    .system(
-                                        size: 44))
-                        }
-                    }
-                    if #available(iOS 15.0, *) {
-                        Button {
+                    })
+                    AttackButton(attackType: .scissor, action: {
                             print("Attack with Scissor")
                             game.mon.signAttack = .scissor
                             game.enemymon.signAttack = AttackType.allCases.randomElement()
                             game.battle()
                             game.mon.attack(mon: game.enemymon, with: .scissor)
-                        } label: {
-                            Text("✂️")
-                                .font(
-                                    .system(
-                                        size: 44))
-                        }.buttonStyle(.borderedProminent)
-                    } else {
-                        // Fallback on earlier versions
-                        Button {
-                            print("Attack with Scissor")
-                            game.mon.signAttack = .scissor
-                            game.enemymon.signAttack = AttackType.allCases.randomElement()
-                            game.battle()
-                            game.mon.attack(mon: game.enemymon, with: .scissor)
-                        } label: {
-                            Text("✂️")
-                                .font(
-                                    .system(
-                                        size: 44))
-                        }
-                    }
+                    })
                 }
                 Spacer()
             }.navigationTitle("Fight")
@@ -109,31 +70,55 @@ struct ContentView: View {
     }
 }
 
+struct AttackButton: View {
+    var attackType: AttackType
+    var action: () -> Void
+    var body: some View {
+        if #available(iOS 15.0, *) {
+            Button(action: action){
+                Text("\(GameService.translate(attackType).icon)")
+                    .font(
+                        .system(
+                            size: 44))
+            }.buttonStyle(.borderedProminent)
+        } else {
+            // Fallback on earlier versions
+            Button(action: action) {
+                Text("\(GameService.translate(attackType).icon)")
+                    .font(
+                        .system(
+                            size: 44))
+            }
+        }
+    }
+}
+
 struct MonsterView: View {
     @Binding var mon: Monster
     var body: some View {
-        VStack {
-            ZStack {
-                Text(mon.emoji)
-                    .font(
-                        .system(
-                            size: 150))
-                if mon.life <= 0 {
-                    Text("❌")
+        HStack {
+            VStack {
+                ZStack {
+                    Text(mon.emoji)
                         .font(
                             .system(
                                 size: 150))
+                    if mon.life <= 0 {
+                        Text("❌")
+                            .font(
+                                .system(
+                                    size: 150))
+                    }
+                    VStack {
+                        Text("👊\(String(format: "%.2f", mon.attackPower))")
+                    }.offset(x: -50, y: -70)
+                    Text("❤️\(String(format: "%.2f", mon.life))").offset(y: 90)
                 }
-                VStack {
-                    Text("👊\(String(format: "%.2f", mon.attackPower))")
-                }.offset(x: -50, y: -70)
-                Text("❤️\(String(format: "%.2f", mon.life))").offset(y: 90)
+                Text("\(mon.name)")
+                    .font(
+                        .system(
+                            size: 20, weight: .bold))
             }
-            Text("\(mon.name)")
-                .font(
-                    .system(
-                        size: 20, weight: .bold))
-            
             if let currAttack = mon.signAttack {
                 Text("\(translate(currAttack))")
                     .font(
@@ -141,7 +126,6 @@ struct MonsterView: View {
                             size: 44))
             }
         }.padding(.all, 8)
-//            .background(Color.green)
             .cornerRadius(10)
     }
     
