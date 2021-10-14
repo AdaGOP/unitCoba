@@ -6,10 +6,7 @@
 //
 
 import Foundation
-
-protocol BattleAble{
-    func attack(mon: Monster, with type: AttackType)
-}
+import SwiftUI
 
 class GameService{
     static func translate(_ currAttack: AttackType) -> (name:String, icon:String) {
@@ -31,6 +28,9 @@ class GameViewModel: ObservableObject{
     init(yourMon: Monster, enemy: Monster){
         self.mon = yourMon
         self.enemymon = enemy
+        
+        self.mon.battle = self
+        self.enemymon.battle = self
     }
     
     func battle() {
@@ -50,15 +50,31 @@ class GameViewModel: ObservableObject{
     }
 }
 
+
+
+protocol BattleAble{
+    func attack(mon: Monster, with type: AttackType)
+}
+
+extension GameViewModel: BattleAble{
+    func attack(mon: Monster, with type: AttackType) {
+        print("\(mon.name) is attacked")
+    }
+}
+
 enum AttackType: CaseIterable{
     case rock
     case paper
     case scissor
 }
 
-struct Monster: BattleAble {
+struct Monster {
+    
+    var battle: BattleAble?
+    
     func attack(mon: Monster, with type: AttackType) {
-        print("\(self.name) is attacking \(mon.name) with \(type) while \(mon.name) is defending with \(mon.signAttack!)")
+        battle!.attack(mon: mon, with: type)
+//        print("\(self.name) is attacking \(mon.name) with \(type) while \(mon.name) is defending with \(mon.signAttack!)")
     }
     
     var name: String
